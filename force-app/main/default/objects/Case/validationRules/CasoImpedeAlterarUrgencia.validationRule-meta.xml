@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CasoImpedeAlterarUrgencia</fullName>
+    <active>true</active>
+    <description>Impedir alterações no campo Urgência de um caso após 5 minutos de sua criação</description>
+    <errorConditionFormula>AND(
+  ISCHANGED(Urgencia__c),
+  NOT($Permission.PodeAlterarUrgencia),
+  OR(
+    (NOW() - CreatedDate) &gt; (5/1440),
+    $Profile.Name = &apos;Agente de Suporte&apos;
+  )
+)</errorConditionFormula>
+    <errorMessage>Não é possível alterar a Urgência de um caso após 5 minutos de sua criação.</errorMessage>
+</ValidationRule>

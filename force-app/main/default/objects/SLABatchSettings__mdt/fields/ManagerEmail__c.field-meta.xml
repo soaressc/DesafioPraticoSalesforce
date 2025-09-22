@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ManagerEmail__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Para onde enviar o alerta quando SendEmails__c = true.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Qual o e-mail de destino para o alerta?</inlineHelpText>
+    <label>ManagerEmail</label>
+    <length>100</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

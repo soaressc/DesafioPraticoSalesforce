@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Urgencia__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Campo reservado para a criticidade (urgência) para a solução do caso</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Criticidade do caso</inlineHelpText>
+    <label>Urgência</label>
+    <length>25</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

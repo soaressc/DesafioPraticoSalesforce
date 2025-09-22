@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Metadado para padronização de valores em minutos para solução de um caso de acordo com sua criticidade</description>
+    <label>SLA</label>
+    <pluralLabel>SLAs</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

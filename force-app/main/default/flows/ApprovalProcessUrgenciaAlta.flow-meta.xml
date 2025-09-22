@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Processo de aprovação para casos de urgência alta.
+• Apenas casos de Urgência = Alta exigem aprovação antes da resolução.
+• O aprovador deve ser um Gerente de Suporte.
+• O caso não pode ser alterado até a aprovação.</description>
+    <environments>Default</environments>
+    <interviewLabel>ApprovalProcessUrgencia {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Approval Process Urgência Alta</label>
+    <orchestratedStages>
+        <name>Stage_1</name>
+        <label>Stage 1</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>AssignsToQueue</name>
+            <actionName>standard_approvals__ReviewAppvlRqst</actionName>
+            <actionType>stepApproval</actionType>
+            <assignees>
+                <assignee>
+                    <stringValue>GerenteDeSuporte</stringValue>
+                </assignee>
+                <assigneeType>Queue</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalInformation</name>
+            </inputParameters>
+            <inputParameters>
+                <name>ActionInput__RecordId</name>
+                <value>
+                    <elementReference>$Record.Id</elementReference>
+                </value>
+            </inputParameters>
+            <label>Atribui para Fila</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>false</runAsUser>
+            <shouldLock>true</shouldLock>
+            <stepSubtype>ApprovalStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>ApprovalWorkflow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Stage_1</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Urgencia__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Alta</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsClosed</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

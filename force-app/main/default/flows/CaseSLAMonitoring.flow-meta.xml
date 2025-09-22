@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Utiliza a classe CaseSLAFlowInvocable para obter o SLA do Caso</description>
+        <name>ApexGetCaseSLA</name>
+        <label>Obter SLA de Caso com Apex</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>CaseSLAFlowInvocable</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>SLAConfigurado</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>GetCaseByNumber.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>CaseSLAFlowInvocable</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <customProperties>
+        <name>ScreenProgressIndicator</name>
+        <value>
+            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+        </value>
+    </customProperties>
+    <decisions>
+        <description>Verificação se Get Records encontrou algum registro para o número do caso</description>
+        <name>CaseFound</name>
+        <label>Caso encontrado?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>CaseNotFound</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Não Encontrado</defaultConnectorLabel>
+        <rules>
+            <name>Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetCaseByNumber</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ApexGetCaseSLA</targetReference>
+            </connector>
+            <label>Encontrado</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>SLAConfigurado</name>
+        <label>SLA Configurado?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Summary</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Com SLA</defaultConnectorLabel>
+        <rules>
+            <name>SemSLA</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>ApexGetCaseSLA.dueAt</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>NoDueDate</targetReference>
+            </connector>
+            <label>Sem SLA</label>
+        </rules>
+    </decisions>
+    <description>Fluxo de tela de monitoramento de SLA por número de caso</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Horas para o fim do prazo de atendimento do SLA</description>
+        <name>FormulaHoras</name>
+        <dataType>Number</dataType>
+        <expression>FLOOR({!FormulaMinutosAbs} / 60)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>Minutos para o fim do prazo de atendimento do SLA</description>
+        <name>FormulaMinutos</name>
+        <dataType>Number</dataType>
+        <expression>MOD({!FormulaMinutosAbs}, 60)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>Minutos absolutos (totais) para o fim do SLA</description>
+        <name>FormulaMinutosAbs</name>
+        <dataType>Number</dataType>
+        <expression>ABS({!ApexGetCaseSLA.minutesRemaining})</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>Texto de resumo, apresenta se estourado ou tempo restante</description>
+        <name>FormulaResumoTexto</name>
+        <dataType>String</dataType>
+        <expression>IF(
+  {!ApexGetCaseSLA.isLate},
+  &quot;⚠️ SLA ESTOURADO há &quot; &amp; TEXT({!FormulaHoras}) &amp; &quot; h &quot; &amp; TEXT({!FormulaMinutos}) &amp; &quot; min&quot;,
+  &quot;⏳ Tempo restante: &quot; &amp; TEXT({!FormulaHoras}) &amp; &quot; h &quot; &amp; TEXT({!FormulaMinutos}) &amp; &quot; min&quot;
+)</expression>
+    </formulas>
+    <interviewLabel>Caso - Monitoramento de SLA {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Caso - Monitoramento de SLA</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <description>Busca os registros de Caso pelo Número</description>
+        <name>GetCaseByNumber</name>
+        <label>GetCaseByNumber</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>CaseFound</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CaseNumber</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>CaseNumber</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Case</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <screens>
+        <description>Tela para quando registro não é encontrado</description>
+        <name>CaseNotFound</name>
+        <label>Caso não encontrado</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>CaseNotFoundAlert</name>
+            <fieldText>&lt;p&gt;Caso não encontrado. Verifique o &lt;strong&gt;Número do Caso&lt;/strong&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Tela que recebe o Número do Caso</description>
+        <name>InputCase</name>
+        <label>Buscar Caso</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>GetCaseByNumber</targetReference>
+        </connector>
+        <fields>
+            <name>CaseNumber</name>
+            <dataType>String</dataType>
+            <fieldText>Número do Caso</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Tela que imprime a falta de data de limite da resolução para o SLA do Caso.</description>
+        <name>NoDueDate</name>
+        <label>Caso sem data limite de resolução</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>NoDueDateText</name>
+            <fieldText>&lt;p&gt;Este caso não possui &lt;strong&gt;Data Limite de Resolução&lt;/strong&gt; configurada.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Tela final de resumo das informações de SLA</description>
+        <name>Summary</name>
+        <label>Summary</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Resumo_SLA</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Caso: &lt;/strong&gt;{!ApexGetCaseSLA.caseNumber}&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Data Limite:&lt;/strong&gt; {!ApexGetCaseSLA.dueAt}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;{!FormulaResumoTexto}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>InputCase</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+</Flow>
