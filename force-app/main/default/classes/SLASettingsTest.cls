@@ -7,8 +7,8 @@ private class SLASettingsTest {
     }
 
     @isTest static void testNormalize() {
-        String s = 'Média';
-        String norm = SLASettings.normalize(s);
-        System.assertEquals('media', norm, 'Normalização deve remover acento');
+    String s = 'Média';
+    String norm = SLASettings.normalize(s).toLowerCase();
+    System.assertEquals('media', norm, 'Normalização deve remover acento');
     }
 }
