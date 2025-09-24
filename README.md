@@ -1,18 +1,62 @@
-# Salesforce DX Project: Next Steps
+# Desafio Prático Salesforce - Monitoramento de SLA de Casos
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+Este repositório contém uma solução completa para o desafio prático de monitoramento de SLA de casos no Salesforce, incluindo automações, metadados, perfis, permission sets, batch apex, triggers, flows, approval processes e flexipages.
 
-## How Do You Plan to Deploy Your Changes?
+---
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+## 🚀 Funcionalidades
 
-## Configure Your Salesforce DX Project
+- **Trigger no objeto Caso:**  
+  Define automaticamente a Data Limite para Resolução consultando o metadado SLA__mdt conforme a urgência do caso.
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+- **Batch Apex para monitoramento de casos:**  
+  Executa a cada 5 minutos, eleva urgência para Alta em casos atrasados e envia e-mail ao gerente de suporte.
 
-## Read All About It
+- **Perfis e Permission Sets:**  
+  - *Agente de Suporte*: leitura/edição de casos, não pode alterar urgência manualmente.
+  - *Gerente de Suporte*: acesso total, pode alterar urgência e reatribuir casos.
+  - *Pode Alterar Urgência*: permission set com custom permission para permitir alteração da urgência após 30 minutos.
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- **Metadado SLA__mdt:**  
+  Define tempo padrão de resolução por urgência (Baixa, Média, Alta).
+
+- **Record Types:**  
+  - Suporte Técnico
+  - Suporte Administrativo
+
+- **Campos Customizados:**  
+  - Urgência (picklist)
+  - Motivo do Caso (picklist dependente)
+  - Data Limite para Resolução (fórmula baseada no SLA)
+
+- **Processo de Aprovação:**  
+  Submissão automática ou manual de casos com urgência Alta para aprovação do gerente.
+
+- **Flows:**  
+  Automatizam submissão para aprovação e controle de status dos casos.
+
+- **Flexipages:**  
+  Layouts Lightning personalizados para monitoramento de SLA e casos.
+
+---
+
+## 🧪 Testes
+
+- Todas as classes Apex possuem testes unitários.
+- Cobertura de código garantida para triggers, batch, helpers e serviços.
+
+---
+
+## 👩‍💻 Autores
+
+- Soraya Costa
+
+---
+
+## 📄 Licença
+
+Este projeto é apenas para fins educacionais e de avaliação técnica.
+
+---
+
+**Dúvidas ou sugestões? Abra uma issue ou entre em contato!**
