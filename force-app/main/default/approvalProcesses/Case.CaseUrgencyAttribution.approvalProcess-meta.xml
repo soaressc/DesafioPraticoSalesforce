@@ -33,19 +33,24 @@
             <operation>equals</operation>
             <value>Alta</value>
         </criteriaItems>
-        <criteriaItems>
-            <field>Case.IsClosed</field>
-            <operation>equals</operation>
-            <value>False</value>
-        </criteriaItems>
     </entryCriteria>
     <finalApprovalActions>
         <action>
             <name>SendsEmailToOwner</name>
             <type>Alert</type>
         </action>
+        <action>
+            <name>SetsAprovadoParaFechamento</name>
+            <type>FieldUpdate</type>
+        </action>
     </finalApprovalActions>
     <finalApprovalRecordLock>false</finalApprovalRecordLock>
+    <finalRejectionActions>
+        <action>
+            <name>CantCloseCase</name>
+            <type>FieldUpdate</type>
+        </action>
+    </finalRejectionActions>
     <finalRejectionRecordLock>false</finalRejectionRecordLock>
     <label>Caso Atribuição Urgência Alta</label>
     <nextAutomatedApprover>

@@ -8,6 +8,9 @@
         <locationY>0</locationY>
         <actionName>submit</actionName>
         <actionType>submit</actionType>
+        <connector>
+            <targetReference>SentToApproval</targetReference>
+        </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>objectId</name>
@@ -18,7 +21,7 @@
         <inputParameters>
             <name>processDefinitionNameOrId</name>
             <value>
-                <stringValue>CaseUrgencyAttribution</stringValue>
+                <stringValue>04aak000000iz1N</stringValue>
             </value>
         </inputParameters>
         <nameSegment>submit</nameSegment>
@@ -27,6 +30,68 @@
     </actionCalls>
     <apiVersion>64.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>AgentUser</name>
+        <label>Usuário é agente e caso não aprovado?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>FALSE</defaultConnectorLabel>
+        <rules>
+            <name>TRUE_IsAgenteDeSuporte</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AprovadoParaFechamento__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Profile.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Agente de Suporte</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>NotSubmittedToApproval</targetReference>
+            </connector>
+            <label>TRUE</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>NotSubmittedToApproval</name>
+        <label>Não submetido para aprovação</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Volta_Status</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>FALSE</defaultConnectorLabel>
+        <rules>
+            <name>TRUE_NonSubmitted</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.EnviadoParaAprovacao__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Submits_For_Approval</targetReference>
+            </connector>
+            <label>TRUE</label>
+        </rules>
+    </decisions>
+    <description>Flow de submissão de Caso para Aprovação quando Urgência = &apos;Alta&apos; e Status é alterado para Fechado</description>
     <environments>Default</environments>
     <interviewLabel>CaseSubmitToApprovalFlow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Case Submit To Approval Flow</label>
@@ -49,11 +114,40 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>SentToApproval</name>
+        <label>Enviado para Aprovação</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Volta_Status</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>EnviadoParaAprovacao__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Volta_Status</name>
+        <label>Volta Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Working</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Submits_For_Approval</targetReference>
+            <targetReference>AgentUser</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -64,14 +158,14 @@
             </value>
         </filters>
         <filters>
-            <field>IsClosed</field>
-            <operator>EqualTo</operator>
+            <field>Status</field>
+            <operator>IsChanged</operator>
             <value>
-                <booleanValue>false</booleanValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Case</object>
-        <recordTriggerType>Create</recordTriggerType>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
