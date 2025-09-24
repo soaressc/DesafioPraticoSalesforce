@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Fila de atribuição para gerentes de suporte para processo de aprovação</description>
+    <doesSendEmailToMembers>true</doesSendEmailToMembers>
+    <name>Gerente de Suporte</name>
+    <queueMembers>
+        <users>
+            <user>gerente.suporte@desafiotecnico.2025</user>
+        </users>
+    </queueMembers>
+    <queueSobject>
+        <sobjectType>Case</sobjectType>
+    </queueSobject>
+    <queueSobject>
+        <sobjectType>FlowOrchestrationWorkItem</sobjectType>
+    </queueSobject>
+</Queue>
