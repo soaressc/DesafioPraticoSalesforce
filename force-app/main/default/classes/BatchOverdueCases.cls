@@ -46,7 +46,8 @@ implements Database.Batchable<SObject>, Schedulable {
         }
 
         if (!ups.isEmpty()) {
-            Database.update(ups);
+            // allOrNone=false para não derrubar o lote inteiro caso alguma RV bloqueie
+            Database.update(ups, /*allOrNone*/ false);
         }
 
         if (getSendEmails() && !nums.isEmpty()) {
@@ -61,7 +62,32 @@ implements Database.Batchable<SObject>, Schedulable {
         }
     }
 
-    global void finish(Database.BatchableContext bc) {}
+    global void finish(Database.BatchableContext bc) {
+        if (!getEnabled()) return;
+    
+        String ts = Datetime.now().format('yyyyMMdd_HHmmss');
+        String jobName = 'BatchOverdueCases_' + ts;
+
+        Integer minutes = 5;
+        if (Test.isRunningTest()) {
+            // Em testes, mantenha pequeno para rodar dentro do start/stop
+            minutes = 1;
+        }
+    
+        Integer scope = getBatchSize();
+    
+        try {
+            System.scheduleBatch(new BatchOverdueCases(), jobName, minutes, scope);
+        } catch (Exception ex) {
+            String fallbackName = 'BatchOverdueCases_' + String.valueOf(Crypto.getRandomInteger());
+            try {
+                System.scheduleBatch(new BatchOverdueCases(), fallbackName, Math.max(1, minutes), scope);
+            } catch (Exception ex2) {
+                System.debug(LoggingLevel.ERROR,
+                    'Falha ao reagendar BatchOverdueCases: ' + ex.getMessage() + ' | Fallback: ' + ex2.getMessage());
+            }
+        }
+    }
 
     // ---- Schedulable ----
     global void execute(SchedulableContext sc) {
@@ -70,8 +96,4 @@ implements Database.Batchable<SObject>, Schedulable {
         }
     }
 
-    // agenda a cada 5 minutos
-    public static void scheduleEveryFive() {
-        System.schedule('BatchOverdueCases_Every5', '0 0/5 * * * ?', new BatchOverdueCases());
-    }
 }
